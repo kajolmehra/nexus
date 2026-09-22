@@ -2,6 +2,7 @@
 
 # Nexus
 
+
 > A knowledge workspace that combines document ingestion, retrieval queries, editable knowledge graphs, and schema-driven forms.
 
 [![Case study](https://img.shields.io/badge/case%20study-public%20portfolio-2563EB)](SECURITY.md)
