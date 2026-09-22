@@ -34,23 +34,49 @@ Nexus is a web workspace for turning source documents into searchable, explainab
 | Platform integration | LightRAG-compatible API, Firebase Auth/Firestore, i18next, file upload, and local persistence |
 | Product quality | Empty/error/loading states, retry/backoff helpers, network status, theming, and accessibility-minded controls |
 
-## Representative flow
+## Product operating flow
+
+Nexus is designed as an evidence loop: bring in source material, retrieve an answer, inspect the connected context, and turn the result into a structured output. Authentication, health, and retry states remain visible at each boundary.
 
 ```mermaid
-flowchart LR
-    Login[Authenticate workspace] --> Documents[Upload and manage documents]
-    Documents --> Index[Process into retrieval store]
-    Index --> Query[Ask a retrieval question]
-    Query --> Answer[Review answer and history]
-    Answer --> Graph[Explore related entities]
-    Graph --> Edit[Edit node or relationship]
-    Schema[Choose a schema] --> Form[Complete guided form]
-    Form --> Preview[Preview / export]
+flowchart TB
+    SignIn[Sign in to workspace] --> Session[Workspace session]
+    Session --> Health[API + network health]
+
+    subgraph INGEST[01 - Prepare evidence]
+        Documents[Select documents] --> Validate[Validate type and size]
+        Validate --> Index[Queue indexing]
+        Index --> Knowledge[(Searchable knowledge)]
+    end
+
+    subgraph RETRIEVE[02 - Retrieve and explain]
+        Query[Ask a question] --> Retrieve[Apply retrieval settings]
+        Retrieve --> Answer[Return answer + context]
+        Answer --> History[Save response history]
+        Answer --> Graph[Open graph context]
+        Graph --> Edit[Edit entity or relationship]
+    end
+
+    subgraph COMPOSE[03 - Produce an output]
+        Schema[Choose a schema] --> Form[Complete guided form]
+        Form --> ValidateForm[Validate structured data]
+        ValidateForm --> Preview[Preview or export]
+    end
+
+    Session --> Documents
+    Session --> Query
+    Session --> Schema
+    Knowledge --> Query
+    Edit -. refresh context .-> Knowledge
+    Health -. retry / recover .-> Index
+    Health -. retry / recover .-> Retrieve
 ```
+
+**Outcome:** a traceable path from source documents to a reviewed answer, graph context, and structured deliverable.
 
 ## Technical stack
 
-React 19 · TypeScript · Vite · Zustand · Sigma · Graphology · RJSF · MUI · Radix UI · Tailwind CSS · Firebase Auth/Firestore · i18next · Axios · jsPDF.
+React 19 | TypeScript | Vite | Zustand | Sigma | Graphology | RJSF | MUI | Radix UI | Tailwind CSS | Firebase Auth/Firestore | i18next | Axios | jsPDF.
 
 See [architecture](docs/ARCHITECTURE.md), [user flows](docs/USER-FLOWS.md), [security policy](SECURITY.md), [screenshot guide](docs/SCREENSHOT-GUIDE.md), and [GitHub setup](docs/GITHUB-SETUP.md).
 "# nexus" 
